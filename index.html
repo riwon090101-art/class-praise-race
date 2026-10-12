@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>우리 반 칭찬 레이스 - 참여자</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f1e7;color:#403a31;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+header{text-align:center;padding:24px 12px 10px}
+h1{margin:0;font-size:30px} header p{margin:7px;color:#8b8378}
+.wrap{max-width:1150px;margin:auto;padding:12px}
+.boardbox{background:#fff;border-radius:24px;padding:16px;box-shadow:0 8px 25px #0001}
+.board{position:relative;display:grid;grid-template-columns:repeat(10,minmax(45px,1fr));gap:7px;background:#dfead1;padding:14px;border-radius:18px}
+.cell{height:66px;background:#fff;border:2px solid #c6d4b5;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7b9168;position:relative;cursor:pointer}
+.cell:hover{background:#f7faef}
+.start{background:#d8ecc5!important}.goal{background:#ffe39a!important;border-color:#d6ae43!important}
+.cell.has{box-shadow:inset 0 0 0 3px #b4cd95}
+.pieceLayer{position:absolute;inset:14px;pointer-events:none}
+.pieceGroup{position:absolute;width:70px;height:62px;transform:translate(-50%,-50%);transition:left .45s ease,top .45s ease;z-index:10;text-align:center}
+.pieces{display:flex;justify-content:center;align-items:center;gap:0;min-height:31px}
+.piece{font-size:25px;line-height:29px;margin:0 -2px;filter:drop-shadow(0 2px 2px #0002)}
+.name{display:inline-block;background:#fff;padding:2px 5px;border-radius:6px;font-size:9px;line-height:12px;white-space:nowrap;box-shadow:0 1px 5px #0002}
+.ranking{margin-top:13px;background:#fff;border-radius:18px;padding:14px;box-shadow:0 3px 14px #0000000c}
+.rank{display:flex;gap:9px;align-items:center;padding:6px 2px}.rank b{width:120px}.bar{height:10px;background:#eee;border-radius:9px;overflow:hidden;flex:1}.bar i{display:block;height:100%;background:#91b56f}.num{width:55px;text-align:right;font-size:13px}
+.modal{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal.show{display:flex}.modalbox{background:#fff;border-radius:20px;padding:22px;max-width:390px;width:100%;box-shadow:0 12px 40px #0004}
+.modalbox h2{margin:0 0 12px}.modalbox button{width:100%;border:0;border-radius:10px;padding:11px;background:#eee;font-weight:700}
+.occupant{padding:10px;border-radius:10px;background:#f5f8ef;margin:7px 0}
+.note{text-align:center;color:#8b8378;font-size:12px;margin:12px}
+@media(max-width:700px){.board{grid-template-columns:repeat(5,minmax(45px,1fr))}.cell{height:58px}.pieceLayer{inset:14px}}
+</style>
+</head>
+<body>
+<header><h1>🏃 우리 반 칭찬 레이스</h1><p>칭찬을 받을수록 내 말이 한 칸씩 앞으로!</p></header>
+<div class="wrap">
+<div class="boardbox"><div class="board" id="board"></div></div>
+<div class="ranking"><h3 style="margin:0 0 8px">🏆 현재 순위</h3><div id="ranking"></div></div>
+<div class="note">번호가 있는 칸을 누르면 그 칸에 함께 있는 친구를 볼 수 있어요.</div>
+</div>
+
+<div class="modal" id="modal" onclick="closeModal(event)">
+ <div class="modalbox" onclick="event.stopPropagation()">
+  <h2 id="modalTitle"></h2><div id="occupants"></div>
+  <button onclick="hideModal()">닫기</button>
+ </div>
+</div>
+
+<script>
+const KEY="classPraiseRace_v3";
+const EMOJIS=["🐰","🐻","🐸","🐱","🐶","🐼","🦊","🐯","🐨","🐹","🐥","🐵","🐙","🦄","🐳","🐧"];
+let data={};
+
+function load(){try{data=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){data={}}}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function cellIndex(el){return [...document.querySelectorAll(".cell")].indexOf(el)}
+
+function draw(){
+ load();
+ const board=document.getElementById("board");
+ board.innerHTML="";
+ const cells=[];
+ for(let i=0;i<50;i++){
+   const c=document.createElement("div");
+   c.className="cell"+(i===0?" start":"")+(i===49?" goal":"");
+   c.textContent=i===0?"START":i===49?"🏆 GOAL":i;
+   c.dataset.index=i;
+   c.onclick=()=>showCell(i);
+   board.appendChild(c); cells.push(c);
+ }
+ const layer=document.createElement("div"); layer.className="pieceLayer"; layer.id="pieceLayer"; board.appendChild(layer);
+
+ const groups={};
+ Object.entries(data).forEach(([name,s])=>{
+   const p=Math.max(0,Math.min(49,Number(s.pos)||0));
+   (groups[p]??=[]).push({name,s});
+   cells[p].classList.add("has");
+ });
+ const br=board.getBoundingClientRect(), layerRect=layer.getBoundingClientRect();
+ Object.entries(groups).forEach(([p,people])=>{
+   const c=cells[Number(p)], r=c.getBoundingClientRect();
+   const g=document.createElement("div");g.className="pieceGroup";
+   g.style.left=(r.left-layerRect.left+r.width/2)+"px";
+   g.style.top=(r.top-layerRect.top+r.height/2)+"px";
+   const ps=document.createElement("div");ps.className="pieces";
+   people.slice(0,4).forEach(({s})=>{const q=document.createElement("span");q.className="piece";q.textContent=EMOJIS[(s.icon||0)%EMOJIS.length];ps.appendChild(q)});
+   if(people.length>4){const q=document.createElement("span");q.className="piece";q.textContent="+"+(people.length-4);ps.appendChild(q)}
+   const n=document.createElement("div");n.className="name";n.textContent=people.length===1?people[0].name:people.length+"명 함께 있음";
+   g.append(ps,n);layer.appendChild(g);
+ });
+ const arr=Object.entries(data).sort((a,b)=>(b[1].pos||0)-(a[1].pos||0));
+ document.getElementById("ranking").innerHTML=arr.length?arr.map(([n,s],i)=>`<div class="rank"><b>${i+1}위 ${esc(n)}</b><div class="bar"><i style="width:${(Math.min(49,s.pos||0)/49)*100}%"></i></div><span class="num">${s.pos||0}/49</span></div>`).join(""):"<p style='color:#999'>아직 등록된 학생이 없습니다.</p>";
+}
+function showCell(p){
+ load(); const people=Object.entries(data).filter(([n,s])=>(s.pos||0)===p);
+ if(!people.length)return;
+ document.getElementById("modalTitle").textContent=p===0?"START":p===49?"🏆 GOAL":p+"번 칸";
+ document.getElementById("occupants").innerHTML=people.map(([n,s])=>`<div class="occupant">${EMOJIS[(s.icon||0)%EMOJIS.length]} <b>${esc(n)}</b><br><small>현재 ${s.pos||0}칸</small></div>`).join("");
+ document.getElementById("modal").classList.add("show");
+}
+function hideModal(){document.getElementById("modal").classList.remove("show")}
+function closeModal(e){if(e.target.id==="modal")hideModal()}
+window.addEventListener("storage",draw); window.addEventListener("resize",draw);
+setInterval(draw,1000); draw();
+</script>
+</body></html>
