@@ -175,7 +175,7 @@ function render(){
  if(data[old])who.value=old;
 
  document.getElementById("stamps").innerHTML=praise.map(([label,step])=>
-  `<button class="stamp" onclick="give(${step},${JSON.stringify(label)})">🟡 ${esc(label)} <strong>+${step}칸</strong></button>`
+  `<button class="stamp" onclick='give(${step},${JSON.stringify(label)})'>🟡 ${esc(label)} <strong>+${step}칸</strong></button>`
  ).join("");
 
  document.getElementById("list").innerHTML=Object.entries(data).sort((a,b)=>a[0].localeCompare(b[0],"ko")).map(([n,s])=>
