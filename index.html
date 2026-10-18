@@ -4,124 +4,180 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>우리 반 칭찬 레이스 - 참여자</title>
+<title>우리 반 칭찬 레이스</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f6f1e7;color:#403a31;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
 header{text-align:center;padding:24px 12px 10px}
-h1{margin:0;font-size:30px} header p{margin:7px;color:#8b8378}
-.wrap{max-width:1150px;margin:auto;padding:12px}
-.boardbox{background:#fff;border-radius:24px;padding:16px;box-shadow:0 8px 25px #0001}
-.board{position:relative;display:grid;grid-template-columns:repeat(10,minmax(45px,1fr));gap:7px;background:#dfead1;padding:14px;border-radius:18px}
-.cell{height:66px;background:#fff;border:2px solid #c6d4b5;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7b9168;position:relative;cursor:pointer}
-.cell:hover{background:#f7faef}
-.start{background:#d8ecc5!important}.goal{background:#ffe39a!important;border-color:#d6ae43!important}
-.cell.has{box-shadow:inset 0 0 0 3px #b4cd95}
-.pieceLayer{position:absolute;inset:14px;pointer-events:none}
-.pieceGroup{position:absolute;width:70px;height:62px;transform:translate(-50%,-50%);transition:left .45s ease,top .45s ease;z-index:10;text-align:center}
-.pieces{display:flex;justify-content:center;align-items:center;gap:0;min-height:31px}
-.piece{font-size:25px;line-height:29px;margin:0 -2px;filter:drop-shadow(0 2px 2px #0002)}
-.name{display:inline-block;background:#fff;padding:2px 5px;border-radius:6px;font-size:9px;line-height:12px;white-space:nowrap;box-shadow:0 1px 5px #0002}
-.ranking{margin-top:13px;background:#fff;border-radius:18px;padding:14px;box-shadow:0 3px 14px #0000000c}
-.rank{display:flex;gap:9px;align-items:center;padding:6px 2px}.rank b{width:120px}.bar{height:10px;background:#eee;border-radius:9px;overflow:hidden;flex:1}.bar i{display:block;height:100%;background:#91b56f}.num{width:55px;text-align:right;font-size:13px}
-.modal{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
-.modal.show{display:flex}.modalbox{background:#fff;border-radius:20px;padding:22px;max-width:390px;width:100%;box-shadow:0 12px 40px #0004}
-.modalbox h2{margin:0 0 12px}.modalbox button{width:100%;border:0;border-radius:10px;padding:11px;background:#eee;font-weight:700}
-.occupant{padding:10px;border-radius:10px;background:#f5f8ef;margin:7px 0}
-.note{text-align:center;color:#8b8378;font-size:12px;margin:12px}
-@media(max-width:700px){.board{grid-template-columns:repeat(5,minmax(45px,1fr))}.cell{height:58px}.pieceLayer{inset:14px}}
+h1{margin:0;font-size:29px}
+header p{color:#8b8378;margin:7px}
+.wrap{max-width:1100px;margin:auto;padding:12px}
+.panel{background:#fff;border-radius:20px;padding:15px;box-shadow:0 5px 20px #0001}
+.status{text-align:center;font-size:12px;color:#777;margin:0 0 12px;overflow-wrap:anywhere}
+.board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}
+.cell{min-width:0;min-height:78px;background:#fff;border:2px solid #d5dfc9;border-radius:12px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:3px;cursor:pointer}
+.cell:hover{background:#f5f9ed}
+.cell.start{background:#dceecf;border-color:#a6c58a}
+.cell.goal{background:#ffe4a0;border-color:#d6ad46}
+.number{font-size:12px;color:#8a987d;font-weight:800}
+.pieces{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:0;max-width:100%}
+.piece{font-size:23px;line-height:25px;margin:0 -2px}
+.count{font-size:9px;color:#665f52;text-align:center;overflow-wrap:anywhere}
+.legend{font-size:12px;color:#8b8378;text-align:center;padding:12px 0 2px}
+h2{font-size:19px;margin:0 0 12px}
+.ranking{margin-top:14px}
+.rank{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid #f0ede6}
+.rankname{width:115px;overflow-wrap:anywhere;font-weight:700;font-size:13px}
+.bar{height:10px;background:#eee;border-radius:10px;overflow:hidden;flex:1}
+.bar i{display:block;height:100%;background:#91b56f;border-radius:10px}
+.score{font-size:12px;width:50px;text-align:right}
+.modal{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}
+.modal.show{display:flex}
+.modalbox{width:100%;max-width:390px;max-height:80vh;overflow:auto;background:#fff;border-radius:20px;padding:20px}
+.modalbox h2{margin:0 0 12px}
+.person{background:#f5f8ef;border-radius:10px;padding:11px;margin:7px 0}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11px;background:#e5efd9;cursor:pointer;width:100%;margin-top:10px}
+.empty{text-align:center;color:#999;padding:20px 0}
+@media(max-width:600px){
+ .wrap{padding:8px}
+ .panel{padding:9px}
+ .board{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+ .cell{min-height:66px}
+ .piece{font-size:21px}
+ .rankname{width:90px}
+}
 </style>
 </head>
 <body>
-<header><h1>🏃 우리 반 칭찬 레이스</h1><p>칭찬을 받을수록 내 말이 한 칸씩 앞으로!</p></header>
+<header>
+<h1>🏃 우리 반 칭찬 레이스</h1>
+<p>칭찬을 모아 결승점까지 달려 보자!</p>
+</header>
+
 <div class="wrap">
-<div class="boardbox"><div class="board" id="board"></div></div>
-<div class="ranking"><h3 style="margin:0 0 8px">🏆 현재 순위</h3><div id="ranking"></div></div>
-<div class="note">번호가 있는 칸을 누르면 그 칸에 함께 있는 친구를 볼 수 있어요.</div>
+<section class="panel">
+<p class="status" id="status">Firebase 연결 확인 중...</p>
+<div class="board" id="board"></div>
+<div class="legend">START에서 출발해 49번 칸을 지나 GOAL에 도전하세요!</div>
+</section>
+
+<section class="panel ranking">
+<h2>🏆 현재 순위</h2>
+<div id="ranking"><p class="empty">데이터를 불러오는 중입니다.</p></div>
+</section>
 </div>
+
 <div class="modal" id="modal" onclick="closeModal(event)">
  <div class="modalbox" onclick="event.stopPropagation()">
-  <h2 id="modalTitle"></h2><div id="occupants"></div>
+  <h2 id="modalTitle">칸 정보</h2>
+  <div id="occupants"></div>
   <button onclick="hideModal()">닫기</button>
  </div>
 </div>
+
 <script>
-const KEY="classPraiseRace_v3";
 const DB_URL="https://classmate-4e263-default-rtdb.firebaseio.com";
-let remoteReady=false;
-async function syncRemote(){
- try{
-  const r=await fetch(`${DB_URL}/${KEY}.json?t=${Date.now()}`,{cache:"no-store"});
-  if(!r.ok)throw new Error("Firebase 읽기 실패: "+r.status);
-  const v=await r.json();
-  data=v&&typeof v==="object"?v:{};
-  remoteReady=true;
-  drawFromData();
- }catch(e){console.error(e);}
-}
+const KEY="classPraiseRace_v3";
 const EMOJIS=["🐰","🐻","🐸","🐱","🐶","🐼","🦊","🐯","🐨","🐹","🐥","🐵","🐙","🦄","🐳","🐧"];
 let data={};
-function load(){}
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function draw(){
+
+function esc(s){
+ return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function position(s){
+ return Math.max(0,Math.min(49,Number(s.pos)||0));
+}
+function buildBoard(){
  const board=document.getElementById("board");
  board.innerHTML="";
- const cells=[];
  for(let i=0;i<50;i++){
-  const c=document.createElement("div");
+  const c=document.createElement("button");
+  c.type="button";
   c.className="cell"+(i===0?" start":"")+(i===49?" goal":"");
-  c.textContent=i===0?"START":i===49?"🏆 GOAL":i;
-  c.dataset.index=i;
+  c.dataset.pos=i;
   c.onclick=()=>showCell(i);
-  board.appendChild(c);cells.push(c);
+  board.appendChild(c);
  }
- const layer=document.createElement("div");
- layer.className="pieceLayer";layer.id="pieceLayer";
- board.appendChild(layer);
+}
+function draw(){
+ const board=document.getElementById("board");
+ if(!board.children.length)buildBoard();
+
  const groups={};
  Object.entries(data).forEach(([name,s])=>{
-  const p=Math.max(0,Math.min(49,Number(s.pos)||0));
-  (groups[p]??=[]).push({name,s});
-  cells[p].classList.add("has");
+  const p=position(s);
+  if(!groups[p])groups[p]=[];
+  groups[p].push({name,s});
  });
- const layerRect=layer.getBoundingClientRect();
- Object.entries(groups).forEach(([p,people])=>{
-  const c=cells[Number(p)],r=c.getBoundingClientRect();
-  const g=document.createElement("div");g.className="pieceGroup";
-  g.style.left=(r.left-layerRect.left+r.width/2)+"px";
-  g.style.top=(r.top-layerRect.top+r.height/2)+"px";
-  const ps=document.createElement("div");ps.className="pieces";
-  people.slice(0,4).forEach(({s})=>{
-   const q=document.createElement("span");q.className="piece";
-   q.textContent=EMOJIS[(s.icon||0)%EMOJIS.length];ps.appendChild(q);
-  });
-  if(people.length>4){
-   const q=document.createElement("span");q.className="piece";
-   q.textContent="+"+(people.length-4);ps.appendChild(q);
+
+ [...board.children].forEach((c,i)=>{
+  c.className="cell"+(i===0?" start":"")+(i===49?" goal":"");
+  const people=groups[i]||[];
+  if(i===0){
+   c.innerHTML='<span class="number">START</span>';
+  }else if(i===49){
+   c.innerHTML='<span class="number">🏆 GOAL</span>';
+  }else{
+   c.innerHTML=`<span class="number">${i}</span>`;
   }
-  const n=document.createElement("div");n.className="name";
-  n.textContent=people.length===1?people[0].name:people.length+"명 함께 있음";
-  g.append(ps,n);layer.appendChild(g);
+  if(people.length){
+   c.classList.add("occupied");
+   const pieces=document.createElement("div");
+   pieces.className="pieces";
+   people.slice(0,6).forEach(({s})=>{
+    const p=document.createElement("span");
+    p.className="piece";
+    p.textContent=EMOJIS[((Number(s.icon)||0)%EMOJIS.length+EMOJIS.length)%EMOJIS.length];
+    pieces.appendChild(p);
+   });
+   if(people.length>6){
+    const more=document.createElement("span");
+    more.className="piece";
+    more.textContent="+"+(people.length-6);
+    pieces.appendChild(more);
+   }
+   c.appendChild(pieces);
+   const label=document.createElement("span");
+   label.className="count";
+   label.textContent=people.length===1?people[0].name:people.length+"명";
+   c.appendChild(label);
+  }
  });
- const arr=Object.entries(data).sort((a,b)=>(b[1].pos||0)-(a[1].pos||0));
- document.getElementById("ranking").innerHTML=arr.length?
- arr.map(([n,s],i)=>`<div class="rank"><b>${i+1}위 ${esc(n)}</b><div class="bar"><i style="width:${(Math.min(49,s.pos||0)/49)*100}%"></i></div><span class="num">${s.pos||0}/49</span></div>`).join(""):
- "<p style='color:#999'>아직 등록된 학생이 없습니다.</p>";
+
+ const arr=Object.entries(data).sort((a,b)=>position(b[1])-position(a[1])||a[0].localeCompare(b[0],"ko"));
+ const ranking=document.getElementById("ranking");
+ ranking.innerHTML=arr.length?arr.map(([name,s],i)=>
+  `<div class="rank"><span class="rankname">${i+1}위 ${esc(name)}</span><div class="bar"><i style="width:${position(s)/49*100}%"></i></div><span class="score">${position(s)}/49</span></div>`
+ ).join(""):'<p class="empty">아직 등록된 학생이 없습니다.</p>';
 }
-function drawFromData(){draw()}
 function showCell(p){
- const people=Object.entries(data).filter(([n,s])=>(s.pos||0)===p);
- if(!people.length)return;
+ const people=Object.entries(data).filter(([n,s])=>position(s)===p);
  document.getElementById("modalTitle").textContent=p===0?"START":p===49?"🏆 GOAL":p+"번 칸";
- document.getElementById("occupants").innerHTML=people.map(([n,s])=>`<div class="occupant">${EMOJIS[(s.icon||0)%EMOJIS.length]} <b>${esc(n)}</b><br><small>현재 ${s.pos||0}칸</small></div>`).join("");
+ document.getElementById("occupants").innerHTML=people.length?
+ people.map(([n,s])=>`<div class="person">${EMOJIS[((Number(s.icon)||0)%EMOJIS.length+EMOJIS.length)%EMOJIS.length]} <b>${esc(n)}</b><br><small>현재 ${position(s)}칸</small></div>`).join("")
+ :'<p class="empty">이 칸에 있는 학생이 없습니다.</p>';
  document.getElementById("modal").classList.add("show");
 }
 function hideModal(){document.getElementById("modal").classList.remove("show")}
 function closeModal(e){if(e.target.id==="modal")hideModal()}
+
+async function syncRemote(){
+ try{
+  const r=await fetch(DB_URL+"/"+KEY+".json?t="+Date.now(),{cache:"no-store"});
+  const body=await r.text();
+  if(!r.ok)throw new Error("HTTP "+r.status+" "+body);
+  const result=body?JSON.parse(body):null;
+  data=result&&typeof result==="object"?result:{};
+  draw();
+  document.getElementById("status").textContent="✅ 연결됨 · "+new Date().toLocaleTimeString("ko-KR")+" 기준";
+ }catch(e){
+  console.error(e);
+  document.getElementById("status").textContent="❌ 데이터 연결 실패: "+e.message;
+ }
+}
 window.addEventListener("resize",draw);
 syncRemote();
-setInterval(syncRemote,2000);
-draw();
+setInterval(syncRemote,3000);
 </script>
 </body>
 </html>
