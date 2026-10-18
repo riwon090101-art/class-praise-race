@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -5,94 +6,223 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>우리 반 칭찬 레이스 - 관리자</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f6f1e7;color:#403a31;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
-header{text-align:center;padding:23px 12px 8px}h1{margin:0;font-size:28px}header p{margin:6px;color:#8b8378}
-.wrap{max-width:1050px;margin:auto;padding:12px}.grid{display:grid;grid-template-columns:1fr 1.25fr;gap:16px}.panel{background:#fff;border-radius:20px;padding:18px;box-shadow:0 5px 18px #0001}
-h2{font-size:19px;margin:0 0 12px}input,select,button{font:inherit}input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;margin-bottom:8px}
-button{border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer;background:#e5efd9;margin:3px}.stamp{width:100%;text-align:left;background:#f0f5e9;border:1px solid #dbe6ce}.stamp strong{float:right}.danger{background:#eee}
-.row{display:flex;align-items:center;gap:8px;padding:9px;background:#fafafa;border-radius:10px;margin:6px 0}.row b{flex:1}.tag{font-size:12px;background:#eee;padding:3px 7px;border-radius:7px}
-.log{border-left:3px solid #b8cd99;background:#fafbf7;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:13px}.log small{color:#8b8378}
-.empty{color:#999;font-size:13px}.tools{margin-top:16px}.wide{width:100%}
-</style></head>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f1e7;color:#403a31;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+header{text-align:center;padding:22px 12px}
+h1{margin:0;font-size:28px}
+header p{color:#8b8378;margin:6px}
+.wrap{max-width:850px;margin:auto;padding:12px}
+.card{background:white;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 5px 20px #0000000c}
+h2{font-size:19px;margin:0 0 12px}
+input,select{font:inherit;padding:10px;border:1px solid #ddd7ca;border-radius:10px;min-width:0}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 13px;cursor:pointer;background:#e9efdf;color:#3d5430}
+button:hover{filter:brightness(.97)}
+.primary{background:#76975b;color:white}
+.danger{background:#f6dfd9;color:#8d3b2e}
+.formrow{display:flex;gap:8px;flex-wrap:wrap}
+.formrow input{flex:1}
+.students{display:grid;gap:8px}
+.student{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#f8f7f1;border-radius:12px;padding:11px}
+.student .name{font-weight:700;flex:1;min-width:90px}
+.student .pos{font-size:13px;color:#7e786d}
+.items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#f8f7f1;border-radius:12px;padding:11px}
+.item span{font-size:14px}
+.item button{white-space:nowrap}
+.history{font-size:13px;color:#6e685e;line-height:1.7}
+.history div{border-bottom:1px solid #eee8dc;padding:6px 0}
+.status{font-size:13px;color:#7e786d;margin-top:8px}
+@media(max-width:560px){.items{grid-template-columns:1fr}.item{align-items:flex-start}.item span{flex:1}}
+</style>
+</head>
 <body>
-<header><h1>⭐ 우리 반 칭찬 레이스 · 관리자</h1><p>학생을 선택하고 칭찬 도장을 눌러 주세요.</p></header>
-<div class="wrap"><div class="grid">
-<section class="panel">
-<h2>👥 학생 등록</h2>
-<input id="newName" placeholder="학생 이름">
-<button onclick="add()" class="wide">학생 추가</button>
-<div id="list"></div>
-</section>
-
-<section class="panel">
-<h2>⭐ 칭찬 도장</h2>
-<select id="who"></select>
-<div id="stamps"></div>
-</section>
+<header>
+<h1>🛠️ 우리 반 칭찬 레이스</h1>
+<p>관리자 페이지 · 칭찬 스티커 관리</p>
+</header>
+<div class="wrap">
+<section class="card">
+<h2>➕ 학생 추가</h2>
+<div class="formrow">
+<input id="newName" placeholder="학생 이름 입력" maxlength="20">
+<button class="primary" onclick="addStudent()">학생 추가</button>
 </div>
+<div class="status" id="status">데이터 연결을 확인하고 있습니다.</div>
+</section>
 
-<section class="panel tools">
-<h2>📋 칭찬 기록</h2>
-<select id="logWho" onchange="renderLogs()"></select>
-<div id="logs"></div>
-<button class="danger" onclick="undo()">마지막 도장 취소</button>
+<section class="card">
+<h2>🎖️ 칭찬 스티커 지급</h2>
+<p style="font-size:13px;color:#8b8378">학생을 선택한 다음 칭찬 항목을 눌러 주세요.</p>
+<select id="studentSelect" style="width:100%;margin-bottom:12px">
+<option value="">학생 선택</option>
+</select>
+<div class="items" id="items"></div>
+</section>
+
+<section class="card">
+<h2>👥 학생 현황</h2>
+<div class="students" id="students"></div>
+</section>
+
+<section class="card">
+<h2>↩️ 실행 취소 및 초기화</h2>
+<div class="formrow">
+<button onclick="undo()">마지막 지급 취소</button>
 <button class="danger" onclick="resetAll()">전체 기록 초기화</button>
-<p style="font-size:12px;color:#8b8378">발표 자진해서 하기는 수학 시간 발표를 제외하고 적용합니다. 탐구 모의고사는 +2칸입니다.</p>
+</div>
+</section>
+
+<section class="card">
+<h2>📋 최근 기록</h2>
+<div class="history" id="history">아직 기록이 없습니다.</div>
 </section>
 </div>
 
 <script>
 const KEY="classPraiseRace_v3";
 const HISTORY=KEY+"_history";
-const praise=[
- ["숙제하기",1],
- ["열품타 5시간",1],
- ["발표 자진해서 하기 (수학 제외)",1],
- ["탐구 모의고사",2],
- ["안 온 사람 청소해주기",1],
- ["인사왕 뽑기",1],
- ["1달에 한 번 뽑기",1],
- ["대답왕",1],
- ["개근왕 (1달)",1]
-];
-let data={},history=[];
-const EMOJIS=["🐰","🐻","🐸","🐱","🐶","🐼","🦊","🐯","🐨","🐹","🐥","🐵","🐙","🦄","🐳","🐧"];
+const DB_URL="https://classmate-4e263-default-rtdb.firebaseio.com";
 
-function load(){try{data=JSON.parse(localStorage.getItem(KEY)||"{}");history=JSON.parse(localStorage.getItem(HISTORY)||"[]")}catch(e){data={};history=[]}}
-function save(){localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(HISTORY,JSON.stringify(history));render()}
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function add(){const n=document.getElementById("newName").value.trim();if(!n)return;if(data[n]){alert("이미 등록된 학생입니다.");return}data[n]={pos:0,icon:Object.keys(data).length%EMOJIS.length};document.getElementById("newName").value="";save()}
-function give(step,label){
- const n=document.getElementById("who").value;if(!n)return;
- const old=Number(data[n].pos)||0,newPos=Math.min(49,old+step);
- data[n].pos=newPos;
- history.push({name:n,old,step,label,time:new Date().toLocaleString("ko-KR")});
+const praiseItems=[
+ {name:"숙제하기",points:1},
+ {name:"열품타 5시간",points:1},
+ {name:"발표 자진해서 하기 (수학 제외)",points:1},
+ {name:"탐구 모의고사",points:2},
+ {name:"안 온 사람 청소해주기",points:1},
+ {name:"인사왕 뽑기",points:1},
+ {name:"1달에 한 번 뽑기",points:1},
+ {name:"대답왕",points:1},
+ {name:"개근왕 (1달)",points:1}
+];
+
+let data={};
+let history=[];
+let busy=false;
+
+function setStatus(message){document.getElementById("status").textContent=message}
+function escapeHtml(s){
+ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))
+}
+function normalizeData(v){
+ if(!v||typeof v!=="object")return {};
+ Object.keys(v).forEach((n,i)=>{
+  if(!v[n]||typeof v[n]!=="object")v[n]={};
+  v[n].pos=Math.max(0,Math.min(49,Number(v[n].pos)||0));
+  if(typeof v[n].icon!=="number")v[n].icon=i%16;
+ });
+ return v;
+}
+async function syncRemote(){
+ if(busy)return;
+ try{
+  const r=await fetch(`${DB_URL}.json?t=${Date.now()}`,{cache:"no-store"});
+  if(!r.ok)throw new Error("읽기 오류 "+r.status);
+  const all=await r.json()||{};
+  data=normalizeData(all[KEY]);
+  history=Array.isArray(all[HISTORY])?all[HISTORY]:[];
+  render();
+  setStatus("Firebase 연결됨 · 최신 데이터 동기화 완료");
+ }catch(e){
+  setStatus("연결 실패: Firebase 데이터베이스 규칙과 주소를 확인해 주세요.");
+  console.error(e);
+ }
+}
+async function save(){
+ if(busy)return;
+ busy=true;
+ setStatus("저장 중...");
+ try{
+  const payload={};
+  payload[KEY]=data;
+  payload[HISTORY]=history;
+  const r=await fetch(`${DB_URL}.json`,{
+   method:"PATCH",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify(payload)
+  });
+  if(!r.ok)throw new Error("저장 오류 "+r.status);
+  render();
+  setStatus("저장 완료 · 다른 기기에도 반영됩니다.");
+ }catch(e){
+  setStatus("저장 실패: Firebase 읽기/쓰기 규칙을 확인해 주세요.");
+  console.error(e);
+ }finally{
+  busy=false;
+ }
+}
+function addStudent(){
+ const input=document.getElementById("newName");
+ const name=input.value.trim();
+ if(!name){alert("학생 이름을 입력해 주세요.");return}
+ if(data[name]){alert("이미 등록된 학생입니다.");return}
+ const icons=Object.keys(data).length;
+ data[name]={pos:0,icon:icons%16};
+ history.unshift({time:new Date().toLocaleString("ko-KR"),text:`${name} 학생 추가`});
+ input.value="";
  save();
- if(newPos===49)alert("🏆 "+n+" 학생이 GOAL에 도착했습니다!");
+}
+function givePraise(itemName,points){
+ const name=document.getElementById("studentSelect").value;
+ if(!name){alert("먼저 학생을 선택해 주세요.");return}
+ if(!data[name]){alert("학생 정보를 찾을 수 없습니다.");return}
+ const before=data[name].pos||0;
+ data[name].pos=Math.min(49,before+points);
+ history.unshift({
+  time:new Date().toLocaleString("ko-KR"),
+  text:`${name} · ${itemName} (+${points}칸)`
+ });
+ history=history.slice(0,100);
+ save();
+}
+function removeStudent(name){
+ if(!confirm(`${name} 학생을 목록에서 삭제할까요?`))return;
+ delete data[name];
+ history.unshift({time:new Date().toLocaleString("ko-KR"),text:`${name} 학생 삭제`});
+ save();
 }
 function undo(){
  if(!history.length){alert("취소할 기록이 없습니다.");return}
- const h=history.pop(); if(data[h.name])data[h.name].pos=h.old;save();
+ if(!confirm("마지막 기록을 취소할까요?"))return;
+ const last=history.shift();
+ const match=last.text.match(/^(.+?) · (.+) \(\+(\d+)칸\)$/);
+ if(match&&data[match[1]]){
+  data[match[1]].pos=Math.max(0,(data[match[1]].pos||0)-Number(match[3]));
+ }
+ save();
 }
-function removeStudent(n){if(confirm(n+" 학생을 삭제할까요?")){delete data[n];history=history.filter(h=>h.name!==n);save()}}
-function resetAll(){if(!confirm("모든 학생의 이동 기록과 칭찬 기록을 초기화할까요?"))return;Object.keys(data).forEach(n=>data[n].pos=0);history=[];save()}
+function resetAll(){
+ if(!confirm("모든 학생의 진행 칸과 기록을 초기화할까요? 이 작업은 되돌리기 어렵습니다."))return;
+ Object.keys(data).forEach(n=>data[n].pos=0);
+ history=[];
+ history.unshift({time:new Date().toLocaleString("ko-KR"),text:"전체 진행 칸 초기화"});
+ save();
+}
 function render(){
- load();
- const who=document.getElementById("who"), old=who.value;who.innerHTML="";
- Object.entries(data).forEach(([n,s])=>{const o=document.createElement("option");o.value=n;o.textContent=n+" ("+(s.pos||0)+"칸)";who.appendChild(o)});
- if(data[old])who.value=old;
- document.getElementById("stamps").innerHTML=praise.map(([l,s])=>`<button class="stamp" onclick='give(${s},${JSON.stringify(l)})'>🟡 ${esc(l)} <strong>+${s}칸</strong></button>`).join("");
- const list=document.getElementById("list");
- list.innerHTML=Object.entries(data).map(([n,s])=>`<div class="row"><b>${EMOJIS[(s.icon||0)%EMOJIS.length]} ${esc(n)}</b><span class="tag">${s.pos||0}/49</span><button onclick='removeStudent(${JSON.stringify(n)})'>삭제</button></div>`).join("")||"<p class='empty'>학생을 먼저 등록해 주세요.</p>";
- const lw=document.getElementById("logWho"), oldL=lw.value;lw.innerHTML="<option value='__all__'>전체 학생</option>";
- Object.keys(data).forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;lw.appendChild(o)});if(oldL&&([...lw.options].some(o=>o.value===oldL)))lw.value=oldL;
- renderLogs();
+ const select=document.getElementById("studentSelect");
+ const selected=select.value;
+ select.innerHTML='<option value="">학생 선택</option>';
+ Object.keys(data).sort((a,b)=>a.localeCompare(b,"ko")).forEach(n=>{
+  const op=document.createElement("option");
+  op.value=n;op.textContent=n;select.appendChild(op);
+ });
+ if(data[selected])select.value=selected;
+
+ document.getElementById("items").innerHTML=praiseItems.map((item,i)=>
+  `<div class="item"><span>${escapeHtml(item.name)} <b>+${item.points}</b></span><button onclick="givePraise('${escapeHtml(item.name)}',${item.points})">지급</button></div>`
+ ).join("");
+
+ const students=document.getElementById("students");
+ const names=Object.keys(data).sort((a,b)=>a.localeCompare(b,"ko"));
+ students.innerHTML=names.length?names.map(n=>
+  `<div class="student"><span class="name">${escapeHtml(n)}</span><span class="pos">${data[n].pos||0}/49칸</span><button class="danger" onclick="removeStudent('${escapeHtml(n)}')">삭제</button></div>`
+ ).join(""):"<p>등록된 학생이 없습니다.</p>";
+
+ document.getElementById("history").innerHTML=history.length?
+  history.slice(0,30).map(h=>`<div>${escapeHtml(h.time||"")} · ${escapeHtml(h.text||"")}</div>`).join(""):
+  "아직 기록이 없습니다.";
 }
-function renderLogs(){
- load();const who=document.getElementById("logWho").value;
- const logs=history.slice().reverse().filter(h=>who==="__all__"||h.name===who);
- document.getElementById("logs").innerHTML=logs.length?logs.map(h=>`<div class="log"><b>${EMOJIS[(data[h.name]?.icon||0)%EMOJIS.length]} ${esc(h.name)}</b> — ${esc(h.label)} <b>+${h.step}칸</b><br><small>${esc(h.time)} · ${h.old}칸 → ${h.old+h.step>49?49:h.old+h.step}칸</small></div>`).join(""):"<p class='empty'>아직 칭찬 기록이 없습니다.</p>";
-}
-window.addEventListener("storage",render);render();
+syncRemote();
+setInterval(syncRemote,3000);
 </script>
-</body></html>
+</body>
+</html>
