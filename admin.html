@@ -174,9 +174,13 @@ function render(){
  });
  if(data[old])who.value=old;
 
- document.getElementById("stamps").innerHTML=praise.map(([label,step])=>
-  `<button class="stamp" onclick='give(${step},${JSON.stringify(label)})'>🟡 ${esc(label)} <strong>+${step}칸</strong></button>`
- ).join("");
+ document.getElementById("stamps").innerHTML=praise.map(([label,step],i)=>
+  `<button class="stamp" data-step="${step}" data-index="${i}">🟡 ${esc(label)} <strong>+${step}칸</strong></button>`
+).join("");
+
+document.getElementById("stamps").querySelectorAll(".stamp").forEach((btn,i)=>{
+  btn.addEventListener("click",()=>give(praise[i][1],praise[i][0]));
+});
 
  document.getElementById("list").innerHTML=Object.entries(data).sort((a,b)=>a[0].localeCompare(b[0],"ko")).map(([n,s])=>
   `<div class="row"><b>${EMOJIS[(Number(s.icon)||0)%EMOJIS.length]} ${esc(n)}</b><span class="tag">${Number(s.pos)||0}/49</span><button onclick="removeStudent(${JSON.stringify(n)})">삭제</button></div>`
