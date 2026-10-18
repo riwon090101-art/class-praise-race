@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -38,61 +39,78 @@ h1{margin:0;font-size:30px} header p{margin:7px;color:#8b8378}
 <div class="ranking"><h3 style="margin:0 0 8px">🏆 현재 순위</h3><div id="ranking"></div></div>
 <div class="note">번호가 있는 칸을 누르면 그 칸에 함께 있는 친구를 볼 수 있어요.</div>
 </div>
-
 <div class="modal" id="modal" onclick="closeModal(event)">
  <div class="modalbox" onclick="event.stopPropagation()">
   <h2 id="modalTitle"></h2><div id="occupants"></div>
   <button onclick="hideModal()">닫기</button>
  </div>
 </div>
-
 <script>
 const KEY="classPraiseRace_v3";
+const DB_URL="https://classmate-4e263-default-rtdb.firebaseio.com";
+let remoteReady=false;
+async function syncRemote(){
+ try{
+  const r=await fetch(`${DB_URL}/${KEY}.json?t=${Date.now()}`,{cache:"no-store"});
+  if(!r.ok)throw new Error("Firebase 읽기 실패: "+r.status);
+  const v=await r.json();
+  data=v&&typeof v==="object"?v:{};
+  remoteReady=true;
+  drawFromData();
+ }catch(e){console.error(e);}
+}
 const EMOJIS=["🐰","🐻","🐸","🐱","🐶","🐼","🦊","🐯","🐨","🐹","🐥","🐵","🐙","🦄","🐳","🐧"];
 let data={};
-
-function load(){try{data=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){data={}}}
+function load(){}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function cellIndex(el){return [...document.querySelectorAll(".cell")].indexOf(el)}
-
 function draw(){
- load();
  const board=document.getElementById("board");
  board.innerHTML="";
  const cells=[];
  for(let i=0;i<50;i++){
-   const c=document.createElement("div");
-   c.className="cell"+(i===0?" start":"")+(i===49?" goal":"");
-   c.textContent=i===0?"START":i===49?"🏆 GOAL":i;
-   c.dataset.index=i;
-   c.onclick=()=>showCell(i);
-   board.appendChild(c); cells.push(c);
+  const c=document.createElement("div");
+  c.className="cell"+(i===0?" start":"")+(i===49?" goal":"");
+  c.textContent=i===0?"START":i===49?"🏆 GOAL":i;
+  c.dataset.index=i;
+  c.onclick=()=>showCell(i);
+  board.appendChild(c);cells.push(c);
  }
- const layer=document.createElement("div"); layer.className="pieceLayer"; layer.id="pieceLayer"; board.appendChild(layer);
-
+ const layer=document.createElement("div");
+ layer.className="pieceLayer";layer.id="pieceLayer";
+ board.appendChild(layer);
  const groups={};
  Object.entries(data).forEach(([name,s])=>{
-   const p=Math.max(0,Math.min(49,Number(s.pos)||0));
-   (groups[p]??=[]).push({name,s});
-   cells[p].classList.add("has");
+  const p=Math.max(0,Math.min(49,Number(s.pos)||0));
+  (groups[p]??=[]).push({name,s});
+  cells[p].classList.add("has");
  });
- const br=board.getBoundingClientRect(), layerRect=layer.getBoundingClientRect();
+ const layerRect=layer.getBoundingClientRect();
  Object.entries(groups).forEach(([p,people])=>{
-   const c=cells[Number(p)], r=c.getBoundingClientRect();
-   const g=document.createElement("div");g.className="pieceGroup";
-   g.style.left=(r.left-layerRect.left+r.width/2)+"px";
-   g.style.top=(r.top-layerRect.top+r.height/2)+"px";
-   const ps=document.createElement("div");ps.className="pieces";
-   people.slice(0,4).forEach(({s})=>{const q=document.createElement("span");q.className="piece";q.textContent=EMOJIS[(s.icon||0)%EMOJIS.length];ps.appendChild(q)});
-   if(people.length>4){const q=document.createElement("span");q.className="piece";q.textContent="+"+(people.length-4);ps.appendChild(q)}
-   const n=document.createElement("div");n.className="name";n.textContent=people.length===1?people[0].name:people.length+"명 함께 있음";
-   g.append(ps,n);layer.appendChild(g);
+  const c=cells[Number(p)],r=c.getBoundingClientRect();
+  const g=document.createElement("div");g.className="pieceGroup";
+  g.style.left=(r.left-layerRect.left+r.width/2)+"px";
+  g.style.top=(r.top-layerRect.top+r.height/2)+"px";
+  const ps=document.createElement("div");ps.className="pieces";
+  people.slice(0,4).forEach(({s})=>{
+   const q=document.createElement("span");q.className="piece";
+   q.textContent=EMOJIS[(s.icon||0)%EMOJIS.length];ps.appendChild(q);
+  });
+  if(people.length>4){
+   const q=document.createElement("span");q.className="piece";
+   q.textContent="+"+(people.length-4);ps.appendChild(q);
+  }
+  const n=document.createElement("div");n.className="name";
+  n.textContent=people.length===1?people[0].name:people.length+"명 함께 있음";
+  g.append(ps,n);layer.appendChild(g);
  });
  const arr=Object.entries(data).sort((a,b)=>(b[1].pos||0)-(a[1].pos||0));
- document.getElementById("ranking").innerHTML=arr.length?arr.map(([n,s],i)=>`<div class="rank"><b>${i+1}위 ${esc(n)}</b><div class="bar"><i style="width:${(Math.min(49,s.pos||0)/49)*100}%"></i></div><span class="num">${s.pos||0}/49</span></div>`).join(""):"<p style='color:#999'>아직 등록된 학생이 없습니다.</p>";
+ document.getElementById("ranking").innerHTML=arr.length?
+ arr.map(([n,s],i)=>`<div class="rank"><b>${i+1}위 ${esc(n)}</b><div class="bar"><i style="width:${(Math.min(49,s.pos||0)/49)*100}%"></i></div><span class="num">${s.pos||0}/49</span></div>`).join(""):
+ "<p style='color:#999'>아직 등록된 학생이 없습니다.</p>";
 }
+function drawFromData(){draw()}
 function showCell(p){
- load(); const people=Object.entries(data).filter(([n,s])=>(s.pos||0)===p);
+ const people=Object.entries(data).filter(([n,s])=>(s.pos||0)===p);
  if(!people.length)return;
  document.getElementById("modalTitle").textContent=p===0?"START":p===49?"🏆 GOAL":p+"번 칸";
  document.getElementById("occupants").innerHTML=people.map(([n,s])=>`<div class="occupant">${EMOJIS[(s.icon||0)%EMOJIS.length]} <b>${esc(n)}</b><br><small>현재 ${s.pos||0}칸</small></div>`).join("");
@@ -100,7 +118,10 @@ function showCell(p){
 }
 function hideModal(){document.getElementById("modal").classList.remove("show")}
 function closeModal(e){if(e.target.id==="modal")hideModal()}
-window.addEventListener("storage",draw); window.addEventListener("resize",draw);
-setInterval(draw,1000); draw();
+window.addEventListener("resize",draw);
+syncRemote();
+setInterval(syncRemote,2000);
+draw();
 </script>
-</body></html>
+</body>
+</html>
